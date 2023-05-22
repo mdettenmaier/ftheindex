@@ -1,0 +1,42 @@
+---
+title: "test map and chart"
+format: html
+---
+
+
+## Top 10 Biophysical Settings
+
+
+```{r bps chart, message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.height=10}
+library(tidyverse)
+library(scales)
+library(stringr)
+
+bps_data <- read.csv("data/bps_aoi_attributes.csv")
+
+bpsname <- bps_data %>%
+  group_by(BPS_NAME) %>%
+  summarize(ACRES = sum(ACRES),
+            REL_PERCENT = sum(REL_PERCENT)) %>%
+  arrange(desc(REL_PERCENT)) %>%
+  top_n(n = 10, wt = REL_PERCENT)
+
+# plot
+bpsChart <- 
+  ggplot(data = bpsname, aes(x = BPS_NAME, y = REL_PERCENT)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Top 10 Biophysical Settings",
+    caption = "Data from landfire.gov; Chart © Randy Swaty",
+    x = "",
+    y = "Percent of landscape") +
+  scale_x_discrete(limits = rev(bpsname$BPS_NAME),
+                   labels = function(x) str_wrap(x, width = 18)) +
+  coord_flip() +
+  theme_bw(base_size = 14)
+
+
+bpsChart
+```
+
+
